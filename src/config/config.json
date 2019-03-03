@@ -1,0 +1,7 @@
+{
+  "PORT": 8083,
+  "HOST": "127.0.0.1",
+  "GUTENBERG_CATALOG": "http://www.gutenberg.org/cache/epub/feeds/rdf-files.tar.zip",
+  "FUSEKI_URL": "http://fuseki/gutenberg?default",
+  "GUTENBERG_DOCUMENTS_MAX_COUNT": 5000
+}

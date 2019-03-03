@@ -1,0 +1,60 @@
+{
+  "name": "imports",
+  "version": "1.0.0",
+  "description": "Data imports application",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "ava",
+    "import:gutenberg": "ts-node-dev ./src/bin/gutenberg.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyped-text/imports.git"
+  },
+  "keywords": [
+    "data",
+    "imports"
+  ],
+  "author": "shonie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hyped-text/imports/issues"
+  },
+  "homepage": "https://github.com/hyped-text/imports#readme",
+  "dependencies": {
+    "adm-zip": "^0.4.13",
+    "dbpedia-sparql-client": "^0.9.8",
+    "dotenv": "^6.1.0",
+    "dotenv-cli": "^1.4.0",
+    "event-iterator": "^1.0.0",
+    "hyped-logger": "git+https://github.com/hyped-text/hyped-logger.git",
+    "isomorphic-fetch": "^2.2.1",
+    "mkdirp": "^0.5.1",
+    "nconf": "^0.10.0",
+    "ramda": "^0.26.1",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^2.6.3",
+    "tar-fs": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/mkdirp": "^0.5.2",
+    "@types/rimraf": "^2.0.2",
+    "@types/tar-fs": "^1.16.1",
+    "@types/adm-zip": "^0.4.32",
+    "@types/dotenv": "^6.1.0",
+    "@types/graphql": "^14.0.6",
+    "@types/isomorphic-fetch": "0.0.34",
+    "@types/nconf": "^0.10.0",
+    "@types/node": "^10.12.21",
+    "@types/ramda": "^0.25.48",
+    "@types/redis": "^2.8.10",
+    "@types/sinon": "^7.0.5",
+    "ava": "^1.2.1",
+    "ava-ts": "^0.25.2",
+    "prettier": "^1.15.3",
+    "sinon": "^7.2.3",
+    "ts-node": "^8.0.2",
+    "ts-node-dev": "^1.0.0-pre.32",
+    "typescript": "^3.3.1"
+  }
+}
