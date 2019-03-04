@@ -4,8 +4,8 @@ import AdmZip from 'adm-zip';
 import { join } from 'path';
 import { promisify } from 'util';
 import createLogger from 'hyped-logger';
-import { download, untar } from '../utils';
-import config from '../config';
+import { download, untar } from '../../util';
+import config from '../../config';
 
 const GUTENBERG_DIR = join(process.env.HOME || '~', '.gutenberg');
 

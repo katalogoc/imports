@@ -2,7 +2,7 @@ import { extname } from 'path';
 import fs from 'fs';
 import R from 'ramda';
 import { promisify } from 'util';
-import { traverse, filter, map, take } from '../utils';
+import { traverse, filter, map, take } from '../../util';
 import createLogger from 'hyped-logger';
 import fetch from 'isomorphic-fetch';
 
@@ -20,14 +20,16 @@ export const load = (rootDir: string, url: string, maxCount: number) =>
     map(async (file: string) => {
       const rdf: string = await readFile(file, 'utf8');
 
-      await fetch(url, {
+      const result = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/rdf+xml',
         },
         body: rdf,
-      });
+      }).then((res: Response) => res.json());
 
       logger.info(`${file} loaded to ${url}`);
+
+      return result;
     })
   )(rootDir, undefined);

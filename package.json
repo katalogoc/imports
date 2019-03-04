@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "ava",
-    "import:gutenberg": "ts-node-dev ./src/bin/gutenberg.ts"
+    "import:texts": "ts-node-dev ./src/bin/texts.ts",
+    "import:text-authors": "ts-node-dev ./src/bin/textAuthors.ts"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,6 @@
   "homepage": "https://github.com/hyped-text/imports#readme",
   "dependencies": {
     "adm-zip": "^0.4.13",
-    "dbpedia-sparql-client": "^0.9.8",
     "dotenv": "^6.1.0",
     "dotenv-cli": "^1.4.0",
     "event-iterator": "^1.0.0",
@@ -34,21 +34,21 @@
     "ramda": "^0.26.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^2.6.3",
+    "sparql-client": "^0.2.0",
     "tar-fs": "^2.0.0"
   },
   "devDependencies": {
-    "@types/mkdirp": "^0.5.2",
-    "@types/rimraf": "^2.0.2",
-    "@types/tar-fs": "^1.16.1",
     "@types/adm-zip": "^0.4.32",
     "@types/dotenv": "^6.1.0",
-    "@types/graphql": "^14.0.6",
     "@types/isomorphic-fetch": "0.0.34",
+    "@types/lodash": "^4.14.121",
+    "@types/mkdirp": "^0.5.2",
     "@types/nconf": "^0.10.0",
     "@types/node": "^10.12.21",
     "@types/ramda": "^0.25.48",
-    "@types/redis": "^2.8.10",
+    "@types/rimraf": "^2.0.2",
     "@types/sinon": "^7.0.5",
+    "@types/tar-fs": "^1.16.1",
     "ava": "^1.2.1",
     "ava-ts": "^0.25.2",
     "prettier": "^1.15.3",
