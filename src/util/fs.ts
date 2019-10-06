@@ -4,6 +4,7 @@ import http, { IncomingMessage } from 'http';
 import createLogger from 'hyped-logger';
 import { promisify } from 'util';
 import tar from 'tar-fs';
+import unzipper from 'unzipper';
 
 const readdir = promisify(fs.readdir);
 
@@ -55,6 +56,10 @@ export const download = (url: string, dest: string) => {
         fs.unlink(dest, () => reject(err)); // Delete the file async. (But we don't check the result)
       });
   });
+};
+
+export const unzip = (zipFile: string, dest: string) => {
+  return unzipper.Open.file(zipFile).then((d) => d.extract({ path: dest, concurrency: 5 }));
 };
 
 export const untar = (tarball: string, dest: string) => {
