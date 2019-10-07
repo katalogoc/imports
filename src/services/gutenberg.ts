@@ -43,7 +43,6 @@ const gutenbergService = {
       try {
         await download(config.get('GUTENBERG_CATALOG'), ZIP_FILE);
       
-
         logger.info('Download successful!');
       } catch (error) {
         logger.error(`Could't download Gutenberg catalog`);

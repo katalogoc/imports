@@ -1,7 +1,7 @@
 FROM "node:12.11.0"
 LABEL maintainer="shonie.starnikov@gmail.com"
 
-# Default dir equals to /app (container path)
+# Default dir equals to /app (container)
 WORKDIR /app
 
 # Install app dependencies
