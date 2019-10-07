@@ -41,11 +41,8 @@ const gutenbergService = {
       logger.info(`Start downloading Gutenberg catalog from ${config.get('GUTENBERG_CATALOG')} to ${ZIP_FILE}`);
 
       try {
-        const zipFileExists = await exists(ZIP_FILE);
-
-        if (!zipFileExists) {
-          await download(config.get('GUTENBERG_CATALOG'), ZIP_FILE);
-        }
+        await download(config.get('GUTENBERG_CATALOG'), ZIP_FILE);
+      
 
         logger.info('Download successful!');
       } catch (error) {

@@ -1,10 +1,10 @@
 require('dotenv').config();
 import nconf from 'nconf';
-import path from 'path';
+import defaults from './config';
 
 const config = nconf
   .env()
   .argv()
-  .file({ file: path.join(__dirname, './config.json') });
+  .defaults(defaults);
 
 export default config;

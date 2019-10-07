@@ -1,4 +1,3 @@
-
 import { Context } from 'koa';
 import dbpediaService from '../services/dbpedia';
 import createError from 'http-errors'

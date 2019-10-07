@@ -19,22 +19,6 @@ export default {
 
         logger.info(`import service listens ${hostPort}`);
 
-        if (process.send) {
-          process.send('ready');
-        }
-
-        process.on('message', (msg: string) => {
-          if (msg === 'shutdown') {
-            logger.info('Closing all connections...');
-
-            setTimeout(() => {
-              logger.info('Finished closing connections');
-
-              process.exit(0);
-            }, 1500);
-          }
-        });
-
         process.on('SIGINT', () => {
           logger.info('SIGINT signal received.');
 
@@ -45,7 +29,7 @@ export default {
               process.exit(1);
             }
 
-            logger.info('Closing database connections...');
+            logger.info('Server closed');
 
             process.exit(0);
           });
