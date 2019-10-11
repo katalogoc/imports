@@ -1,3 +1,4 @@
+import dgraph from 'dgraph-js';
 import fs from 'fs';
 import _ from 'lodash';
 import mkdirp from 'mkdirp';
@@ -9,7 +10,8 @@ import config from '../config';
 import { extname } from 'path';
 import queue from '../api/queue';
 import GutenbergDocument from '../lib/GutenbergDocument';
-import { GutenbergText } from 'src/types';
+import dgraphClient from '../lib/dgraphClient';
+import { GutenbergText } from '../types';
 
 const GUTENBERG_DIR = join(process.env.HOME || '~', '.gutenberg');
 
@@ -84,18 +86,22 @@ export const enqueuePayloads = (payloads: GutenbergText[]) =>
   Promise.all(
     payloads
       .sort((a: GutenbergText, b: GutenbergText) => _.get(a.authors, '0.deathdate', Infinity) - _.get(b.authors, '0.deathdate', Infinity))
-      .map((payload: GutenbergText) =>
-        queue
-          .enqueue({
-            type: 'TEXT_CREATED',
-            payload
-          })
-          .catch((err: Error) => logger.error(`Couldn't enqueue payload for title: ${payload.title}, error ${err}`)))
+      .map(async (payload: GutenbergText) => {
+        // Create data.
+        const p = {
+          name: "Alice",
+        };
+
+        // Run mutation.
+        const mu = new dgraph.Mutation();
+        mu.setSetJson(p);
+        await dgraphClient.newTxn().mutate(mu);
+      })
   )
 export const uploadData = async () => {
   const files = await traverse(RDF_PATH);
 
-  const payloads = await getPayloads(files);
+  const payloads = await getPayloads(files as any);
 
   await enqueuePayloads(payloads);
 }

@@ -1,12 +1,12 @@
 
-import { Context, Middleware } from 'koa';
-import gutenbergService from '../services/gutenberg';
+import { Context } from 'koa';
+import { sync } from '../services/gutenberg';
 import createError from 'http-errors';
 
 export default {
   async start(ctx: Context) {
     try {
-      await gutenbergService.sync();
+      await sync();
 
       ctx.status = 200;
 
