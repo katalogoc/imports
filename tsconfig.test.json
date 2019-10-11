@@ -1,4 +1,9 @@
 {
     "extends": "./tsconfig.json",
-    "files": ["./node_modules/@types/jest/index.d.ts", "./node_modules/@types/node/index.d.ts"]
+    "include": [
+        "**/__tests__/**/*"
+    ],
+    "compilerOptions": {
+        "noEmit": true,
+    }
 }

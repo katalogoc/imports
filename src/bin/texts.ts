@@ -1,7 +1,7 @@
 #!/usr/bin/node
 
-import gutenbergService from '../services/gutenberg';
+import { sync } from '../services/gutenberg';
 
 (async () => {
-  gutenbergService.sync();
+  await sync();
 })();

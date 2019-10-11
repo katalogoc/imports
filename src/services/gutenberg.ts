@@ -1,15 +1,15 @@
 import fs from 'fs';
+import _ from 'lodash';
 import mkdirp from 'mkdirp';
-import AdmZip from 'adm-zip';
 import { join } from 'path';
 import { promisify } from 'util';
 import createLogger from 'hyped-logger';
-import { download, untar, unzip } from '../util';
+import { download, untar, unzip, traverse } from '../util';
 import config from '../config';
 import { extname } from 'path';
-import R from 'ramda';
-import { traverse, filter, map, take } from '../util';
 import queue from '../api/queue';
+import GutenbergDocument from '../lib/GutenbergDocument';
+import { GutenbergText } from 'src/types';
 
 const GUTENBERG_DIR = join(process.env.HOME || '~', '.gutenberg');
 
@@ -21,86 +21,85 @@ const exists = promisify(fs.exists);
 
 const readFile = promisify(fs.readFile);
 
-const pipe: any = R.pipe;
+export const downloadCatalog = async () => {
+  await promisify(mkdirp)(RDF_PATH);
 
-const gutenbergService = {
-  async init(rdfPath: string = RDF_PATH): Promise<string> {
-    await promisify(mkdirp)(RDF_PATH);
+  const ZIP_FILE = join(RDF_PATH, 'catalog.zip');
 
-    const ZIP_FILE = join(rdfPath, 'catalog.zip');
+  const TAR_FILE = join(RDF_PATH, 'rdf-files.tar');
 
-    const TAR_FILE = join(rdfPath, 'rdf-files.tar');
+  const EXTRACTED_DIR = join(RDF_PATH, 'extracted');
 
-    const EXTRACTED_DIR = join(rdfPath, 'extracted');
+  if (await exists(EXTRACTED_DIR)) {
+    logger.info('Found cached catalog. Download skipped');
 
-    if (await exists(EXTRACTED_DIR)) {
-      logger.info('Found cached catalog. Download skipped');
+    return;
+  } else {
+    logger.info(`Start downloading Gutenberg catalog from ${config.get('GUTENBERG_CATALOG')} to ${ZIP_FILE}`);
 
-      return EXTRACTED_DIR;
-    } else {
-      logger.info(`Start downloading Gutenberg catalog from ${config.get('GUTENBERG_CATALOG')} to ${ZIP_FILE}`);
+    try {
+      await download(config.get('GUTENBERG_CATALOG'), ZIP_FILE);
 
-      try {
-        await download(config.get('GUTENBERG_CATALOG'), ZIP_FILE);
-      
-        logger.info('Download successful!');
-      } catch (error) {
-        logger.error(`Could't download Gutenberg catalog`);
+      logger.info('Download successful!');
+    } catch (error) {
+      logger.error(`Could't download Gutenberg catalog`);
 
-        throw error;
-      }
-
-      try {
-        logger.info(`Start extracting to ${EXTRACTED_DIR}`);
-
-        await unzip(ZIP_FILE, rdfPath);
-
-        logger.info('Unzipped');
-
-        await untar(TAR_FILE, EXTRACTED_DIR);
-
-        logger.info('Untared')
-      } catch (error) {
-        logger.error(`Could't unarchive Gutenberg catalog, ${error}`);
-
-        throw error;
-      }
-
-      logger.info('Done!');
+      throw error;
     }
 
-    return rdfPath;
-  },
-  async load(rootDir: string, url: string, maxCount: number) {
-    const stream = pipe(
-      traverse,
-      filter((file: string) => extname(file) === '.rdf'),
-      take(maxCount),
-      map(async (file: string) => {
+    try {
+      logger.info(`Start extracting to ${EXTRACTED_DIR}`);
+
+      await unzip(ZIP_FILE, RDF_PATH);
+
+      logger.info('Unzipped');
+
+      await untar(TAR_FILE, EXTRACTED_DIR);
+
+      logger.info('Untared')
+    } catch (error) {
+      logger.error(`Could't unarchive Gutenberg catalog, ${error}`);
+
+      throw error;
+    }
+
+    logger.info('Done!');
+  }
+}
+
+export const getPayloads = (files: string[]) =>
+  Promise.all(
+    files
+      .slice(0, config.get('GUTENBERG_DOCUMENTS_MAX_COUNT'))
+      .filter((file: string) => extname(file) === '.rdf')
+      .map(async (file: string) => {
         const rdf: string = await readFile(file, 'utf8');
 
-        await queue.enqueue({
-          type: 'TEXT_CREATED',
-          format: 'rdf',
-          data: rdf,
-        });
+        const document = new GutenbergDocument(rdf, 'application/rdf+xml');
 
-        return null;
-      })
-    )(rootDir, undefined);
+        return document.getPayload();
+      }))
 
-    for await (const _ of stream) {
-    }
-  },
-  async sync() {
-    const rdfPath = await gutenbergService.init();
+export const enqueuePayloads = (payloads: GutenbergText[]) =>
+  Promise.all(
+    payloads
+      .sort((a: GutenbergText, b: GutenbergText) => _.get(a.authors, '0.deathdate', Infinity) - _.get(b.authors, '0.deathdate', Infinity))
+      .map((payload: GutenbergText) =>
+        queue
+          .enqueue({
+            type: 'TEXT_CREATED',
+            payload
+          })
+          .catch((err: Error) => logger.error(`Couldn't enqueue payload for title: ${payload.title}, error ${err}`)))
+  )
+export const uploadData = async () => {
+  const files = await traverse(RDF_PATH);
 
-    const fusekiUrl = `${config.get('FUSEKI_URL')}/texts`;
+  const payloads = await getPayloads(files);
 
-    const docMaxCount = config.get('GUTENBERG_DOCUMENTS_MAX_COUNT');
+  await enqueuePayloads(payloads);
+}
 
-    await gutenbergService.load(rdfPath, fusekiUrl, docMaxCount);
-  },
-};
+export const sync = () => downloadCatalog().then(uploadData);
 
-export default gutenbergService;
+

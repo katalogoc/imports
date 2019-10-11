@@ -10,33 +10,22 @@ const readdir = promisify(fs.readdir);
 
 const logger = createLogger();
 
-const defaultReadDirOptions = {
-  encoding: 'utf8',
-  withFileTypes: true,
-};
+export async function traverse(dir: string): Promise<string[]> {
+  const read = (dir: string): Promise<string[]> =>
+    readdir(dir, { withFileTypes: true })
+      .then(async (files: fs.Dirent[]): Promise<string[]> =>
+        files.reduce(async (promise: Promise<string[]>, f: fs.Dirent) =>
+          promise.then((result: string[]) =>
+            f.isDirectory()
+              ? read(join(dir, f.name)).then((nested: string[]) => result.concat(nested))
+              : result.concat([join(dir, f.name)])), Promise.resolve([])))
+      .catch((error: Error) => {
+        logger.error(`Traverse failed on dir ${dir}\n${error}`);
 
-export async function* traverse(
-  dir: string,
-  readDirOptions: object = defaultReadDirOptions
-): AsyncIterableIterator<string> {
-  const files = await readdir(dir, {
-    withFileTypes: true,
-    ...readDirOptions,
-  }).catch((error: Error) => {
-    logger.error(`Traverse failed on dir ${dir}\n${error}`);
+        return Promise.reject(error);
+      });
 
-    throw error;
-  });
-
-  for (const file of files) {
-    const filePath = join(dir, file.name);
-
-    if (file.isDirectory()) {
-      yield* traverse(filePath);
-    } else {
-      yield filePath;
-    }
-  }
+  return read(dir);
 }
 
 export const download = (url: string, dest: string) => {

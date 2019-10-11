@@ -1,17 +1,10 @@
 import * as rdflib from 'rdflib';
-import { promisify } from 'util';
 import _ from 'lodash';
-import { format } from 'path';
-
-const parse: (...args: any[]) => void = promisify(rdflib.parse);
-
-const { Namespace } = rdflib;
+import { GutenbergAuthor, GutenbergText } from '../types';
 
 const dcterms = rdflib.Namespace('http://purl.org/dc/terms/')
 
 const pgterms = rdflib.Namespace('http://www.gutenberg.org/2009/pgterms/');
-
-const rdf = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#');
 
 class GutenbergDocument {
     store: rdflib.Formula;
@@ -19,16 +12,16 @@ class GutenbergDocument {
     constructor(body: string, mimeType: string) {
         this.store = rdflib.graph();
 
-        parse(body, this.store, 'http://www.gutenberg.org', mimeType)
+        rdflib.parse(body, this.store, 'http://www.gutenberg.org', mimeType, () => void 0);
     }
 
-    getTitle() {
+    getTitle(): string {
         const statements = this.store.statementsMatching(null, dcterms('title'));
     
         return _.get(statements, '0.object.value', null);
     }
 
-    getUrl() {
+    getUrl(): string {
         const formats = this.store.statementsMatching(null, dcterms('format'));
 
         const statement = formats.find((s: rdflib.Statement) => !!s.subject.value.match(/\.txt$/));
@@ -36,7 +29,7 @@ class GutenbergDocument {
         return _.get(statement, 'subject.value', null);
     }
 
-    getAuthors() {
+    getAuthors(): GutenbergAuthor[] {
         const statements = this.store.statementsMatching(null, null, pgterms('agent'));
 
         const getAuthorField = (field: string) => (author: rdflib.Node) => {
@@ -60,12 +53,20 @@ class GutenbergDocument {
                 name,
                 aliases,
                 webpage,
-                birthdate,
-                deathdate,
+                birthdate: birthdate && new Date(birthdate),
+                deathdate: deathdate && new Date(deathdate),
             };
         })
 
         return authors;
+    }
+
+    getPayload(): GutenbergText {
+        return {
+            authors: this.getAuthors(),
+            url: this.getUrl(),
+            title: this.getTitle()
+        }
     }
 }
 

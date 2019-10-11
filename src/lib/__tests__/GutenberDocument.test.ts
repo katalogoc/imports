@@ -8,7 +8,7 @@ const shakespeareWorksWithoutLivingDates = fs.readFileSync(resolve('fixtures/rdf
 
 const unknownWorks = fs.readFileSync(resolve('fixtures/rdf-xml/complete-works-of-unknown-author.rdf'), { encoding: 'utf-8' });
 
-describe('GutenbergDocument', () => {
+describe('lib/GutenbergDocument', () => {
     const completeWorksOfShakespeare = new GutenbergDocument(shakespeareWorks, 'application/rdf+xml');
 
     const completeWorksOfShakespeareWithoutLivingDates = new GutenbergDocument(shakespeareWorksWithoutLivingDates, 'application/rdf+xml');
@@ -46,6 +46,23 @@ describe('GutenbergDocument', () => {
             expect(authors.length).toBe(1);
         });
 
+        test('every element in the authors array is an author object', () => {
+            const authors = completeWorksOfShakespeare.getAuthors();
+
+            expect(authors).toEqual([
+                {
+                    name: 'Shakespeare, William',
+                    birthdate: new Date('1564'),
+                    deathdate: new Date('1616'),
+                    aliases: [
+                        'Shakspere, William',
+                        'Shakspeare, William'
+                    ],
+                    webpage: 'http://en.wikipedia.org/wiki/William_Shakespeare'
+                }
+            ])
+        });
+
         test(`returns an empty array if authors have not been described`, () => {
             const authors = completeWorksOfUnknown.getAuthors();
 
@@ -77,6 +94,27 @@ describe('GutenbergDocument', () => {
 
         test('returns an empty array if the rdf document is invalid', () => {
             expect(invalidDocument.getAuthors()).toEqual([]);
+        });
+    });
+
+    describe('getPayload', () => {
+        test('returns all the information about the document', () => {
+            expect(completeWorksOfShakespeare.getPayload()).toEqual({
+                title: 'The Complete Works of William Shakespeare',
+                authors: [
+                    {
+                        name: 'Shakespeare, William',
+                        birthdate: new Date('1564'),
+                        deathdate: new Date('1616'),
+                        aliases: [
+                            'Shakspere, William',
+                            'Shakspeare, William'
+                        ],
+                        webpage: "http://en.wikipedia.org/wiki/William_Shakespeare"
+                    }
+                ],
+                url: 'http://www.gutenberg.org/files/100/100-0.txt'
+            })
         });
     });
 });
