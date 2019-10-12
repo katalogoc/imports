@@ -1,4 +1,4 @@
-import dgraph from 'dgraph-js';
+import * as dgraph from 'dgraph-js';
 import grpc from 'grpc';
 import config from '../config';
 

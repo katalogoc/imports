@@ -1,14 +1,13 @@
-import dgraph from 'dgraph-js';
+import * as dgraph from 'dgraph-js';
+import glob from 'glob';
 import fs from 'fs';
 import _ from 'lodash';
 import mkdirp from 'mkdirp';
 import { join } from 'path';
 import { promisify } from 'util';
 import createLogger from 'hyped-logger';
-import { download, untar, unzip, traverse } from '../util';
+import { download, untar, unzip } from '../util';
 import config from '../config';
-import { extname } from 'path';
-import queue from '../api/queue';
 import GutenbergDocument from '../lib/GutenbergDocument';
 import dgraphClient from '../lib/dgraphClient';
 import { GutenbergText } from '../types';
@@ -33,16 +32,16 @@ export const downloadCatalog = async () => {
   const EXTRACTED_DIR = join(RDF_PATH, 'extracted');
 
   if (await exists(EXTRACTED_DIR)) {
-    logger.info('Found cached catalog. Download skipped');
+    logger.debug('Found cached catalog. Download skipped');
 
     return;
   } else {
-    logger.info(`Start downloading Gutenberg catalog from ${config.get('GUTENBERG_CATALOG')} to ${ZIP_FILE}`);
+    logger.debug(`Start downloading Gutenberg catalog from ${config.get('GUTENBERG_CATALOG')} to ${ZIP_FILE}`);
 
     try {
       await download(config.get('GUTENBERG_CATALOG'), ZIP_FILE);
 
-      logger.info('Download successful!');
+      logger.debug('Download successful!');
     } catch (error) {
       logger.error(`Could't download Gutenberg catalog`);
 
@@ -50,22 +49,22 @@ export const downloadCatalog = async () => {
     }
 
     try {
-      logger.info(`Start extracting to ${EXTRACTED_DIR}`);
+      logger.debug(`Start extracting to ${EXTRACTED_DIR}`);
 
       await unzip(ZIP_FILE, RDF_PATH);
 
-      logger.info('Unzipped');
+      logger.debug('Unzipped');
 
       await untar(TAR_FILE, EXTRACTED_DIR);
 
-      logger.info('Untared')
+      logger.debug('Untared')
     } catch (error) {
       logger.error(`Could't unarchive Gutenberg catalog, ${error}`);
 
       throw error;
     }
 
-    logger.info('Done!');
+    logger.debug('Done!');
   }
 }
 
@@ -73,7 +72,6 @@ export const getPayloads = (files: string[]) =>
   Promise.all(
     files
       .slice(0, config.get('GUTENBERG_DOCUMENTS_MAX_COUNT'))
-      .filter((file: string) => extname(file) === '.rdf')
       .map(async (file: string) => {
         const rdf: string = await readFile(file, 'utf8');
 
@@ -87,21 +85,39 @@ export const enqueuePayloads = (payloads: GutenbergText[]) =>
     payloads
       .sort((a: GutenbergText, b: GutenbergText) => _.get(a.authors, '0.deathdate', Infinity) - _.get(b.authors, '0.deathdate', Infinity))
       .map(async (payload: GutenbergText) => {
-        // Create data.
-        const p = {
-          name: "Alice",
-        };
-
-        // Run mutation.
         const mu = new dgraph.Mutation();
-        mu.setSetJson(p);
-        await dgraphClient.newTxn().mutate(mu);
+
+        mu.setSetJson({
+          uid: `_:${payload.title}`,
+          ...payload,
+          type: 'Text'
+        });
+
+        const txn = dgraphClient.newTxn();
+
+        try {
+          const res = await txn.mutate(mu);
+
+          logger.debug(`Saved: ${res}`)
+
+          await txn.commit();
+        } catch (err) {
+          logger.warn(`Couldn't save gutenberg text, err: ${err}`);
+        } finally {
+          await txn.discard();
+        }
       })
   )
 export const uploadData = async () => {
-  const files = await traverse(RDF_PATH);
+  logger.debug('Getting files...');
 
-  const payloads = await getPayloads(files as any);
+  const files = await promisify(glob)(`${RDF_PATH}/**/*.rdf`);
+
+  logger.debug('Reading files...');
+
+  const payloads = await getPayloads(files);
+
+  logger.debug('Reading done, saving to the database...')
 
   await enqueuePayloads(payloads);
 }

@@ -8,8 +8,8 @@ import router from './routes';
 const logger = createLogger();
 
 const app = new Koa()
-  .use(handleErrors)
   .use(loggerWinston(logger))
+  .use(handleErrors)
   .use(bodyParser())
   .use(router.routes())
   .use(router.allowedMethods())

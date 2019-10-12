@@ -1,32 +1,7 @@
-import { join } from 'path';
 import fs from 'fs';
 import http, { IncomingMessage } from 'http';
-import createLogger from 'hyped-logger';
-import { promisify } from 'util';
 import tar from 'tar-fs';
 import unzipper from 'unzipper';
-
-const readdir = promisify(fs.readdir);
-
-const logger = createLogger();
-
-export async function traverse(dir: string): Promise<string[]> {
-  const read = (dir: string): Promise<string[]> =>
-    readdir(dir, { withFileTypes: true })
-      .then(async (files: fs.Dirent[]): Promise<string[]> =>
-        files.reduce(async (promise: Promise<string[]>, f: fs.Dirent) =>
-          promise.then((result: string[]) =>
-            f.isDirectory()
-              ? read(join(dir, f.name)).then((nested: string[]) => result.concat(nested))
-              : result.concat([join(dir, f.name)])), Promise.resolve([])))
-      .catch((error: Error) => {
-        logger.error(`Traverse failed on dir ${dir}\n${error}`);
-
-        return Promise.reject(error);
-      });
-
-  return read(dir);
-}
 
 export const download = (url: string, dest: string) => {
   const file = fs.createWriteStream(dest);
