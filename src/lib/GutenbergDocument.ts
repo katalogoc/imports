@@ -47,12 +47,15 @@ class GutenbergDocument {
 
             const deathdate = getAuthorField('deathdate')(author);
 
-            const aliases = this.store.statementsMatching(author, pgterms('alias')).map((s: rdflib.Statement) => _.get(s, 'object.value', null));
+            const thumbnail = getAuthorField('thumbnail')(author);
+
+            const alias = this.store.statementsMatching(author, pgterms('alias')).map((s: rdflib.Statement) => _.get(s, 'object.value', null));
 
             return {
                 name,
-                aliases,
+                alias,
                 webpage,
+                thumbnail,
                 birthdate: birthdate && new Date(birthdate),
                 deathdate: deathdate && new Date(deathdate),
             };
