@@ -1,6 +1,6 @@
 
 import { Context } from 'koa';
-import { sync } from '../services/gutenberg';
+import { sync } from './gutenberg';
 import createError from 'http-errors';
 
 export default {

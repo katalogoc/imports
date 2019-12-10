@@ -1,6 +1,6 @@
 import * as rdflib from 'rdflib';
 import _ from 'lodash';
-import { GutenbergAuthor, GutenbergText } from '../types';
+import { GutenbergAuthor, GutenbergText } from '../common/types';
 
 const dcterms = rdflib.Namespace('http://purl.org/dc/terms/')
 

@@ -5,11 +5,11 @@ import mkdirp from 'mkdirp';
 import { join } from 'path';
 import { promisify } from 'util';
 import createLogger from 'hyped-logger';
-import { download, untar, unzip } from '../util';
+import { download, untar, unzip } from '../common/util';
 import config from '../config';
-import GutenbergDocument from '../lib/GutenbergDocument';
-import { GutenbergText, GutenbergAuthor } from '../types';
-import { getAuthorByWikiUrl, saveAuthor, saveText } from '../api/metadataServiceApi';
+import GutenbergDocument from './GutenbergDocument';
+import { GutenbergText } from '../common/types';
+import { getAuthorByWikiUrl, saveAuthor, saveText } from '../common/metadataServiceApi';
 import tryToCatch from 'try-to-catch';
 
 const GUTENBERG_DIR = join(process.env.HOME || '~', '.gutenberg');
