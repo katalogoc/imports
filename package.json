@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hyped-text/imports.git"
+    "url": "git+https://github.com/katalogoc/imports.git"
   },
   "keywords": [
     "data",
@@ -23,9 +23,9 @@
   "author": "shonie",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hyped-text/imports/issues"
+    "url": "https://github.com/katalogoc/imports/issues"
   },
-  "homepage": "https://github.com/hyped-text/imports#readme",
+  "homepage": "https://github.com/katalogoc/imports#readme",
   "dependencies": {
     "amqplib": "^0.5.5",
     "apollo-cache-inmemory": "^1.6.3",
@@ -38,7 +38,7 @@
     "glob": "^7.1.4",
     "graphql-tag": "^2.10.1",
     "http-errors": "^1.7.3",
-    "hyped-logger": "git+https://github.com/hyped-text/hyped-logger.git",
+    "hyped-logger": "git+https://github.com/katalogoc/hyped-logger.git",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.8.2",
     "koa-bodyparser": "^4.2.1",
