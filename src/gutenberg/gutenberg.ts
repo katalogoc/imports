@@ -48,14 +48,14 @@ export const downloadCatalog = async () => {
     }
     try {
       await untar(TAR_FILE, EXTRACTED_DIR);
-      logger.debug('Untared')
+      logger.debug('Untared');
     } catch (error) {
       logger.error(`Could't untar Gutenberg catalog, ${error}`);
       throw error;
     }
     logger.debug('Done!');
   }
-}
+};
 
 export const getPayloads = (files: string[]) =>
   Promise.all(
@@ -65,10 +65,12 @@ export const getPayloads = (files: string[]) =>
         const rdf: string = await fs.promises.readFile(file, 'utf8');
         const document = new GutenbergDocument(rdf, 'application/rdf+xml');
         return document.getPayload();
-      }))
+      }));
 
 export const enqueuePayloads = async (payloads: GutenbergText[]) => {
-  const paylaodsSorted = payloads.slice().sort((a: GutenbergText, b: GutenbergText) => _.get(a.authors, '0.deathdate', Infinity) - _.get(b.authors, '0.deathdate', Infinity));
+  const paylaodsSorted = payloads
+    .slice()
+    .sort((a: GutenbergText, b: GutenbergText) => _.get(a.authors, '0.deathdate', Infinity) - _.get(b.authors, '0.deathdate', Infinity));
 
   for (const payload of paylaodsSorted) {
     const authorIds: string[] = [];
@@ -110,16 +112,14 @@ export const enqueuePayloads = async (payloads: GutenbergText[]) => {
       throw saveTextFailed;
     }
   }
-}
+};
 export const uploadData = async () => {
   logger.debug('Getting files...');
   const files = await promisify(glob)(`${RDF_PATH}/**/*.rdf`);
   logger.debug('Reading files...');
   const payloads = await getPayloads(files);
-  logger.debug('Reading done, saving to the database...')
+  logger.debug('Reading done, saving to the database...');
   await enqueuePayloads(payloads);
-}
+};
 
 export const sync = () => downloadCatalog().then(uploadData);
-
-

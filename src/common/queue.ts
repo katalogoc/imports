@@ -32,7 +32,7 @@ const connect = async () => {
 
     return {
       enqueue: (msg: string) => {
-        channel.sendToQueue(q, Buffer.from(msg))
+        channel.sendToQueue(q, Buffer.from(msg));
       },
       close: () => {
         channel.close();

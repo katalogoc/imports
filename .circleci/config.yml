@@ -1,0 +1,48 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - checkout
+      - run:
+          name: Installing dependencies
+          command: npm install
+      - run:
+          name: Lint
+          command: npm run lint
+
+  deploy:
+    machine:
+      image: ubuntu-1604:201903-01
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - run:
+          name: Installing Docker
+          command: sudo apt-get update && sudo apt install -y docker.io containerd
+      - run:
+          name: Building Docker image
+          command: docker build -q -t katalogoc/imports:latest .
+      - run:
+          name: Login to Docker registry
+          command: docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
+      - run:
+          name: Pushing to Docker repository
+          command: docker push katalogoc/imports:latest
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master

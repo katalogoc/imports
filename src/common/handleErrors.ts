@@ -1,7 +1,7 @@
 import { Context } from 'koa';
 import createError from 'http-errors';
 
-export default async (ctx: Context, next: Function) => {
+export default async (ctx: Context, next: () => void) => {
   try {
     await next();
   } catch (err) {
@@ -11,7 +11,7 @@ export default async (ctx: Context, next: Function) => {
 
     ctx.body = {
       status,
-      error: createError(status, err, {expose: true})
+      error: createError(status, err, {expose: true}),
     };
   }
 };

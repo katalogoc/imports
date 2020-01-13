@@ -1,6 +1,6 @@
 #!/usr/bin/node
 
-import { sync } from '../services/gutenberg';
+import { sync } from '../gutenberg/gutenberg';
 
 (async () => {
   await sync();

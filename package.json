@@ -5,6 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "build": "tsc --project .",
+    "build:image": "docker build -q -t katalogoc/imports:latest .",
+    "lint": "tslint --project .",
     "test": "jest",
     "test:watch": "npm test -- --watch",
     "start": "node dist/bin/server.js",
@@ -29,6 +31,7 @@
   "dependencies": {
     "amqplib": "^0.5.5",
     "apollo-cache-inmemory": "^1.6.3",
+    "apollo-client": "^2.6.4",
     "apollo-link": "^1.2.13",
     "apollo-link-http": "^1.5.16",
     "apollo-server-koa": "^2.9.5",
@@ -74,10 +77,10 @@
     "@types/sinon": "^7.0.5",
     "@types/tar-fs": "^1.16.1",
     "@types/unzipper": "^0.10.0",
-    "apollo-client": "^2.6.4",
     "jest": "^24.9.0",
     "prettier": "^1.15.3",
     "sinon": "^7.2.3",
+    "tslint": "^5.20.0",
     "ts-jest": "^24.1.0",
     "ts-node": "^8.0.2",
     "ts-node-dev": "^1.0.0-pre.32",

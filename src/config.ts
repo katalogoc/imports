@@ -1,5 +1,7 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
 import nconf from 'nconf';
+
+dotenv.config();
 
 const defaults = {
   PORT: 8083,
@@ -7,8 +9,8 @@ const defaults = {
   GUTENBERG_CATALOG: 'http://www.gutenberg.org/cache/epub/feeds/rdf-files.tar.zip',
   GUTENBERG_DOCUMENTS_MAX_COUNT: 1050,
   AMQP_HOST: 'rabbit',
-  METADATA_SERVICE_URL: 'http://localhost:8082'
-}
+  METADATA_SERVICE_URL: 'http://localhost:8082',
+};
 
 const config = nconf
   .env()

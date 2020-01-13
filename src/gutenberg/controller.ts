@@ -10,9 +10,9 @@ export default {
 
       ctx.status = 200;
 
-      ctx.body = {ok: true, error: null}
+      ctx.body = {ok: true, error: null};
     } catch (error) {
       throw createError(500, error);
     }
-  }
+  },
 };

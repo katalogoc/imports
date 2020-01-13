@@ -11,7 +11,7 @@ const logger = createLogger();
 
 export default {
   async start() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const server = http.createServer(app.callback()).listen(port, host, () => {
         const { address, port: adressPort } = server.address() as any;
 
@@ -37,6 +37,6 @@ export default {
 
         resolve();
       });
-    })
-  }
+    });
+  },
 };

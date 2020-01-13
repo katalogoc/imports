@@ -2,12 +2,12 @@ import * as rdflib from 'rdflib';
 import _ from 'lodash';
 import { GutenbergAuthor, GutenbergText } from '../common/types';
 
-const dcterms = rdflib.Namespace('http://purl.org/dc/terms/')
+const dcterms = rdflib.Namespace('http://purl.org/dc/terms/');
 
 const pgterms = rdflib.Namespace('http://www.gutenberg.org/2009/pgterms/');
 
 class GutenbergDocument {
-    store: rdflib.Formula;
+    public store: rdflib.Formula;
 
     constructor(body: string, mimeType: string) {
         this.store = rdflib.graph();
@@ -15,13 +15,13 @@ class GutenbergDocument {
         rdflib.parse(body, this.store, 'http://www.gutenberg.org', mimeType, () => void 0);
     }
 
-    getTitle(): string {
+    public getTitle(): string {
         const statements = this.store.statementsMatching(null, dcterms('title'));
-    
+
         return _.get(statements, '0.object.value', null);
     }
 
-    getUrl(): string {
+    public getUrl(): string {
         const formats = this.store.statementsMatching(null, dcterms('format'));
 
         const statement = formats.find((s: rdflib.Statement) => !!s.subject.value.match(/\.txt$/));
@@ -29,14 +29,14 @@ class GutenbergDocument {
         return _.get(statement, 'subject.value', null);
     }
 
-    getAuthors(): GutenbergAuthor[] {
+    public getAuthors(): GutenbergAuthor[] {
         const statements = this.store.statementsMatching(null, null, pgterms('agent'));
 
         const getAuthorField = (field: string) => (author: rdflib.Node) => {
-            const statements = this.store.statementsMatching(author, pgterms(field));
+            const triples = this.store.statementsMatching(author, pgterms(field));
 
-            return _.get(statements, '0.object.value', null);
-        }
+            return _.get(triples, '0.object.value', null);
+        };
 
         const authors = statements.map(({ subject: author }: rdflib.Statement) => {
             const name = getAuthorField('name')(author);
@@ -59,17 +59,17 @@ class GutenbergDocument {
                 birthdate: birthdate && new Date(birthdate),
                 deathdate: deathdate && new Date(deathdate),
             };
-        })
+        });
 
         return authors;
     }
 
-    getPayload(): GutenbergText {
+    public getPayload(): GutenbergText {
         return {
             authors: this.getAuthors(),
             url: this.getUrl(),
-            title: this.getTitle()
-        }
+            title: this.getTitle(),
+        };
     }
 }
 

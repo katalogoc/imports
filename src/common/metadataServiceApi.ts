@@ -21,8 +21,8 @@ const client = new ApolloClient({
     },
     link: ApolloLink.from([
         new HttpLink({
-            uri: `${METADATA_SERVICE_URL}/api`
-        })
+            uri: `${METADATA_SERVICE_URL}/api`,
+        }),
     ]),
     cache: new InMemoryCache(),
 });
@@ -44,9 +44,9 @@ export async function getAuthorByWikiUrl(wikiUrl: string) {
                         type: 'eq',
                         field: 'xid',
                         value: wikiUrl,
-                    }
-                ]
-            }
+                    },
+                ],
+            },
         },
     });
     return response.data?.authors?.[0] ?? null;
@@ -69,7 +69,7 @@ export async function saveText(text: GutenbergText): Promise<string> {
     const mutation = gql`
         mutation saveText($text: SaveTextInput!) {
             saveText(text: $text)
-        }      
+        }
     `;
     const response = await client.mutate({
         mutation,
@@ -82,7 +82,7 @@ export async function saveText(text: GutenbergText): Promise<string> {
                 authors: text.authors,
                 subject: [],
             },
-        }
+        },
     });
     return response.data?.saveText ?? null;
 }
@@ -120,10 +120,10 @@ export async function getAuthorByName(name: string): Promise<any> {
                         type: 'eq',
                         field: 'name',
                         value: name,
-                    }
-                ]
-            }
-        }
+                    },
+                ],
+            },
+        },
     });
     return response.data?.authors?.[0] ?? null;
 }

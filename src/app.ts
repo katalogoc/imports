@@ -17,5 +17,4 @@ const app = new Koa()
     logger.error(err);
   });
 
-
 export default app;
