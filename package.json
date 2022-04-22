@@ -48,7 +48,7 @@
     "koa-logger-winston": "0.0.2",
     "lodash": "^4.17.15",
     "mkdirp": "^0.5.1",
-    "nconf": "^0.10.0",
+    "nconf": "^0.11.4",
     "ramda": "^0.26.1",
     "rdflib": "^1.0.4",
     "rimraf": "^2.6.3",
